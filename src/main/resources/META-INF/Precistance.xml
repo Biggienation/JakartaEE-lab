@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+
+    <!-- Define a persistence unit -->
+    <persistence-unit name="mangastore-pu" transaction-type="RESOURCE_LOCAL">
+        <!-- Specify the entity classes -->
+        <class>org.mangastore.jee2025.entity.Manga</class>
+
+        <!-- Database connection properties -->
+        <properties>
+            <!-- Database driver -->
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+
+            <!-- Database URL -->
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/mangastore_db"/>
+
+            <!-- Database username -->
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+
+            <!-- Database password -->
+            <property name="jakarta.persistence.jdbc.password" value="password"/>
+
+            <!-- Hibernate properties (optional) -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/> <!-- Automatically update the schema -->
+            <property name="hibernate.show_sql" value="true"/> <!-- Show SQL queries in the console -->
+            <property name="hibernate.format_sql" value="true"/> <!-- Format SQL queries for better readability -->
+        </properties>
+    </persistence-unit>
+</persistence>
