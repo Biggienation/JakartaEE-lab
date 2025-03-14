@@ -7,22 +7,29 @@
 
     <!-- Define a persistence unit -->
     <persistence-unit name="mangastore-pu" transaction-type="RESOURCE_LOCAL">
+        <description>Persistence unit for MangaStore application</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <jta-data-source>java:/PostgresDS</jta-data-source>
+
         <!-- Specify the entity classes -->
         <class>org.mangastore.jee2025.entity.Manga</class>
 
         <!-- Database connection properties -->
         <properties>
+            <!-- Code to database -->
+            <property name="javax.persistence.schema-generation.database.action" value="create"/>
+            
             <!-- Database driver -->
-            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
 
             <!-- Database URL -->
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/mangastore_db"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/mangastore"/>
 
             <!-- Database username -->
-            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.user" value="postgres"/>
 
             <!-- Database password -->
-            <property name="jakarta.persistence.jdbc.password" value="password"/>
+            <property name="javax.persistence.jdbc.password" value="postgres"/>
 
             <!-- Hibernate properties (optional) -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>

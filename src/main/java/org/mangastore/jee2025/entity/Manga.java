@@ -2,6 +2,8 @@ package org.mangastore.jee2025.entity;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "manga")
 public class Manga {
@@ -84,5 +86,18 @@ public class Manga {
                 ", author='" + author + '\'' +
                 ", ISBN='" + ISBN + '\'' +
                 '}';
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Manga manga = (Manga) o;
+        return getId() != null && Objects.equals(getId(), manga.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
     }
 }
