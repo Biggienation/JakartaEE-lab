@@ -5,7 +5,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.java.Log;
-import org.mangastore.jee2025.dto.MangaResponse;
+import org.mangastore.jee2025.dto.ReturningMangaRequest;
 import org.mangastore.jee2025.entity.Manga;
 
 @Path("mangas")
@@ -23,10 +23,10 @@ public class MangaResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public MangaResponse firstTest() {
+    public ReturningMangaRequest firstTest() {
         // Example response
         mangaRepository.save(new Manga("Test", 10, "Test", "1234567890"));
-        return new MangaResponse("Test", 10, "Test", "1234567890");
+        return new ReturningMangaRequest("Test", 10, "Test", "1234567890");
     }
 
     @POST
@@ -38,7 +38,7 @@ public class MangaResource {
 
             // Return a success response with the created manga
             return Response.status(Response.Status.CREATED)
-                    .entity(new MangaResponse("Test", 10, "Test", "1234567890"))
+                    .entity(new ReturningMangaRequest("Test", 10, "Test", "1234567890"))
                     .build();
         } catch (Exception e) {
             // Log the error and return an error response

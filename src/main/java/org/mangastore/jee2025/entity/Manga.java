@@ -24,10 +24,8 @@ public class Manga {
     @Column(name = "isbn", unique = true, nullable = false)
     private String ISBN;
 
-    // Default constructor (required by JPA)
     public Manga() {}
 
-    // Parameterized constructor
     public Manga(String title, int pages, String author, String ISBN) {
         this.title = title;
         this.pages = pages;
@@ -35,7 +33,6 @@ public class Manga {
         this.ISBN = ISBN;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

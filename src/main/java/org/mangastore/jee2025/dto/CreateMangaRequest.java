@@ -1,17 +1,33 @@
 package org.mangastore.jee2025.dto;
 
-public class MangaResponse {
+public class CreateMangaRequest {
     private String title;
     private int pages;
     private String author;
     private String ISBN;
 
-    public MangaResponse() {}
+    public CreateMangaRequest() {}
 
-    public MangaResponse(String title, int pages, String author, String ISBN) {
+    public CreateMangaRequest(String title, int pages, String author, String ISBN) {
         this.title = title;
         this.pages = pages;
         this.author = author;
+        this.ISBN = ISBN;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setISBN(String ISBN) {
         this.ISBN = ISBN;
     }
 
@@ -19,33 +35,15 @@ public class MangaResponse {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public int getPages() {
         return pages;
-    }
-
-    public void setPages(int pages) {
-        this.pages = pages;
     }
 
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     public String getISBN() {
         return ISBN;
     }
-
-    public void setISBN(String ISBN) {
-        this.ISBN = ISBN;
-    }
-
-
 }
