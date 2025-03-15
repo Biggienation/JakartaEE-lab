@@ -5,8 +5,13 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.java.Log;
+import org.mangastore.jee2025.dto.CreateMangaRequest;
 import org.mangastore.jee2025.dto.ReturningMangaRequest;
+import org.mangastore.jee2025.dto.UpdateMangaRequest;
 import org.mangastore.jee2025.entity.Manga;
+import org.mangastore.jee2025.mapper.MangaMapper;
+
+import java.util.Optional;
 
 @Path("mangas")
 @Log
@@ -21,31 +26,55 @@ public class MangaResource {
 
     public MangaResource() {}
 
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ReturningMangaRequest firstTest() {
-        // Example response
-        mangaRepository.save(new Manga("Test", 10, "Test", "1234567890"));
-        return new ReturningMangaRequest("Test", 10, "Test", "1234567890");
+    public Response getAll() {
+        return Response.ok(mangaRepository.findAll()).build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(Manga manga) {
-        try {
-            // Save the manga entity to the database
-            mangaRepository.save(manga);
+    public Response create(CreateMangaRequest request) {
+        Manga manga = MangaMapper.toEntity(request);
+        mangaRepository.save(manga);
+        return Response.status(Response.Status.CREATED).build();
+    }
 
-            // Return a success response with the created manga
-            return Response.status(Response.Status.CREATED)
-                    .entity(new ReturningMangaRequest("Test", 10, "Test", "1234567890"))
-                    .build();
-        } catch (Exception e) {
-            // Log the error and return an error response
-            log.severe("Error creating manga: " + e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Error creating manga: " + e.getMessage())
-                    .build();
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("id") Long id, UpdateMangaRequest request) {
+        Optional<Manga> manga = mangaRepository.findById(id);
+        if (manga.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
+        MangaMapper.toEntity(request, manga.get());
+        mangaRepository.update(manga.get());
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getById(@PathParam("id") Long id) {
+        Optional<Manga> manga = mangaRepository.findById(id);
+        if (manga.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        ReturningMangaRequest response = MangaMapper.toResponse(manga.orElse(null));
+        return Response.ok(response).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@PathParam("id") Long id) {
+        Optional<Manga> manga = mangaRepository.findById(id);
+        if (manga.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        mangaRepository.delete(manga.get());
+        return Response.noContent().build();
+        //Should this be ok or noContent?
     }
 }
