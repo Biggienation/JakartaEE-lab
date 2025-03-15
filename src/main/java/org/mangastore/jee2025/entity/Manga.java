@@ -21,16 +21,24 @@ public class Manga {
     @Column(name = "author", nullable = false)
     private String author;
 
+    @Column(name = "description",nullable = true)
+    private String description;
+
+    @Column(name = "date", nullable = false)
+    private String date;
+
     @Column(name = "isbn", unique = true, nullable = false)
     private String ISBN;
 
     public Manga() {}
 
-    public Manga(String title, int pages, String author, String ISBN) {
+    public Manga(String title, int pages, String author, String ISBN, String description, String date) {
         this.title = title;
         this.pages = pages;
         this.author = author;
         this.ISBN = ISBN;
+        this.description = description;
+        this.date = date;
     }
 
     public Long getId() {
@@ -65,6 +73,22 @@ public class Manga {
         this.author = author;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     public String getISBN() {
         return ISBN;
     }
@@ -73,7 +97,6 @@ public class Manga {
         this.ISBN = ISBN;
     }
 
-    // Optional: Override toString() for better readability
     @Override
     public String toString() {
         return "Manga{" +
@@ -81,6 +104,8 @@ public class Manga {
                 ", title='" + title + '\'' +
                 ", pages=" + pages +
                 ", author='" + author + '\'' +
+                ", description='" + description + '\'' +
+                ", date='" + date + '\'' +
                 ", ISBN='" + ISBN + '\'' +
                 '}';
     }

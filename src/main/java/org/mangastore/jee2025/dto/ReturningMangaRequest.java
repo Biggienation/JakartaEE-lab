@@ -5,14 +5,18 @@ public class ReturningMangaRequest {
     private int pages;
     private String author;
     private String ISBN;
+    private String description;
+    private String date;
 
     public ReturningMangaRequest() {}
 
-    public ReturningMangaRequest(String title, int pages, String author, String ISBN) {
+    public ReturningMangaRequest(String title, int pages, String author, String ISBN, String description, String date) {
         this.title = title;
         this.pages = pages;
         this.author = author;
         this.ISBN = ISBN;
+        this.description = description;
+        this.date = date;
     }
 
     public String getTitle() {
@@ -47,5 +51,19 @@ public class ReturningMangaRequest {
         this.ISBN = ISBN;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 }

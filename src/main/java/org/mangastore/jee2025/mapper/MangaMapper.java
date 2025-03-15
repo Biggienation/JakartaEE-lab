@@ -14,6 +14,8 @@ public class MangaMapper {
         manga.setPages(request.getPages());
         manga.setAuthor(request.getAuthor());
         manga.setISBN(request.getISBN());
+        manga.setDescription(request.getDescription());
+        manga.setDate(request.getDate());
         return manga;
     }
 
@@ -22,6 +24,8 @@ public class MangaMapper {
         manga.setTitle(request.getTitle());
         manga.setPages(request.getPages());
         manga.setAuthor(request.getAuthor());
+        manga.setDescription(request.getDescription());
+        manga.setDate(request.getDate());
         return manga;
     }
 
@@ -31,7 +35,9 @@ public class MangaMapper {
                 manga.getTitle(),
                 manga.getPages(),
                 manga.getAuthor(),
-                manga.getISBN()
+                manga.getISBN(),
+                manga.getDescription(),
+                manga.getDate()
         );
     }
 }

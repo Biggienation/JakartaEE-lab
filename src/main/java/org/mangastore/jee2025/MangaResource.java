@@ -26,11 +26,10 @@ public class MangaResource {
 
     public MangaResource() {}
 
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
-        return Response.ok(mangaRepository.findAll()).build();
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @POST
