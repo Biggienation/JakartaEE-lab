@@ -11,6 +11,7 @@ import org.mangastore.jee2025.dto.UpdateMangaRequest;
 import org.mangastore.jee2025.entity.Manga;
 import org.mangastore.jee2025.mapper.MangaMapper;
 
+import java.util.List;
 import java.util.Optional;
 
 @Path("mangas")
@@ -24,33 +25,42 @@ public class MangaResource {
         this.mangaRepository = mangaRepository;
     }
 
+    @SuppressWarnings("unused")
     public MangaResource() {}
 
+    //GET Http
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
-        return Response.status(Response.Status.NOT_FOUND).build();
+        List<Manga> mangas = mangaRepository.findAll().toList();
+        return Response.ok(mangas).build();
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(CreateMangaRequest request) {
-        Manga manga = MangaMapper.toEntity(request);
-        mangaRepository.save(manga);
-        return Response.status(Response.Status.CREATED).build();
+    @GET
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response searchByTitle(@QueryParam("title") String title) {
+        List<Manga> mangas = mangaRepository.findByTitleIgnoreCase(title);
+        return Response.ok(mangas).build();
     }
 
-    @PUT
-    @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("id") Long id, UpdateMangaRequest request) {
-        Optional<Manga> manga = mangaRepository.findById(id);
-        if (manga.isEmpty()) {
+    @GET
+    @Path("/author/{author}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByAuthor(@PathParam("author") String author) {
+        List<Manga> mangas = mangaRepository.findByAuthor(author);
+        return Response.ok(mangas).build();
+    }
+
+    @GET
+    @Path("/isbn/{isbn}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByISBN(@PathParam("isbn") String isbn) {
+        Manga manga = mangaRepository.findByISBN(isbn);
+        if (manga == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        MangaMapper.toEntity(request, manga.get());
-        mangaRepository.update(manga.get());
-        return Response.ok().build();
+        return Response.ok(manga).build();
     }
 
     @GET
@@ -65,6 +75,30 @@ public class MangaResource {
         return Response.ok(response).build();
     }
 
+    // POST http
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response create(CreateMangaRequest request) {
+        Manga manga = MangaMapper.toEntity(request);
+        mangaRepository.save(manga);
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    //PUT https
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("id") Long id, UpdateMangaRequest request) {
+        Optional<Manga> manga = mangaRepository.findById(id);
+        if (manga.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        MangaMapper.toEntity(request, manga.get());
+        mangaRepository.update(manga.get());
+        return Response.ok().build();
+    }
+
+    //DELETE http
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
