@@ -10,6 +10,7 @@ import org.mangastore.jee2025.dto.ReturningMangaRequest;
 import org.mangastore.jee2025.dto.UpdateMangaRequest;
 import org.mangastore.jee2025.entity.Manga;
 import org.mangastore.jee2025.mapper.MangaMapper;
+import org.mangastore.jee2025.repository.MangaRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,8 +57,8 @@ public class MangaResource {
     @Path("/isbn/{isbn}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getByISBN(@PathParam("isbn") String isbn) {
-        Manga manga = mangaRepository.findByISBN(isbn);
-        if (manga == null) {
+        Optional<Manga> manga = mangaRepository.findByISBN(isbn);
+        if (manga.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.ok(manga).build();

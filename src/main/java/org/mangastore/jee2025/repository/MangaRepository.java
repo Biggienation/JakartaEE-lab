@@ -1,4 +1,4 @@
-package org.mangastore.jee2025;
+package org.mangastore.jee2025.repository;
 
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Find;
@@ -30,5 +30,5 @@ public interface MangaRepository extends CrudRepository<Manga, Long> {
 
     // Find mangas by ISBN
     @Query("SELECT m FROM Manga m WHERE m.ISBN = :ISBN")
-    Manga findByISBN(String ISBN);
+    Optional<Manga> findByISBN(String ISBN);
 }
