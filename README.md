@@ -67,6 +67,7 @@ Endpoints
 | GET | ```/mangas/{id}```     | Get a manga by ID.|
 | GET    | ```/mangas/isbn/{isbn}```   | Get a manga by ISBN.|
 | GET | ```/mangas/author/{author}``` | Get manga by author. |
+| GET | ```/mangas/search?title=``` | Search for a manga by title |
 | POST | ```/mangas``` | Create a new manga entry. |
 | PUT | ```/mangas/{id}``` | Update an existing manga entry.|
 | DELETE	| ```/mangas/{id}``` |	Delete a manga entry by ID.|
