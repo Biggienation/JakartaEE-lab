@@ -41,6 +41,22 @@ public class MangaServiceImpl implements MangaService {
     }
 
     @Override
+    public List<ReturningMangaRequest> getMangasByAuthor(String author) {
+        return mangaRepository.findByAuthor(author)
+                .stream()
+                .map(MangaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReturningMangaRequest> getMangasByTitle(String title) {
+        return mangaRepository.findByTitleIgnoreCase(title)
+                .stream()
+                .map(MangaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ReturningMangaRequest createManga(CreateMangaRequest request) {
         if (mangaRepository.findByISBN(request.getISBN()).isPresent()) {
             throw new ValidationException("A manga with this ISBN already exists.");

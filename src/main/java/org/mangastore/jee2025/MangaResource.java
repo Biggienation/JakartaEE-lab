@@ -10,7 +10,8 @@ import org.mangastore.jee2025.dto.ReturningMangaRequest;
 import org.mangastore.jee2025.dto.UpdateMangaRequest;
 import org.mangastore.jee2025.entity.Manga;
 import org.mangastore.jee2025.mapper.MangaMapper;
-import org.mangastore.jee2025.repository.MangaRepository;
+import org.mangastore.jee2025.service.MangaService;
+import org.mangastore.jee2025.service.MangaServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +20,11 @@ import java.util.Optional;
 @Log
 public class MangaResource {
 
-    private MangaRepository mangaRepository;
+    private MangaService mangaService;
 
     @Inject
-    public MangaResource(MangaRepository mangaRepository) {
-        this.mangaRepository = mangaRepository;
+    public MangaResource(MangaServiceImpl mangaService) {
+        this.mangaService = mangaService;
     }
 
     @SuppressWarnings("unused")
@@ -33,7 +34,7 @@ public class MangaResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
-        List<Manga> mangas = mangaRepository.findAll().toList();
+        List<ReturningMangaRequest> mangas = mangaService.getAllMangas();
         return Response.ok(mangas).build();
     }
 
@@ -41,7 +42,7 @@ public class MangaResource {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     public Response searchByTitle(@QueryParam("title") String title) {
-        List<Manga> mangas = mangaRepository.findByTitleIgnoreCase(title);
+        List<ReturningMangaRequest> mangas = mangaService.getMangasByTitle(title);
         return Response.ok(mangas).build();
     }
 
@@ -49,7 +50,7 @@ public class MangaResource {
     @Path("/author/{author}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getByAuthor(@PathParam("author") String author) {
-        List<Manga> mangas = mangaRepository.findByAuthor(author);
+        List<ReturningMangaRequest> mangas = mangaService.getMangasByAuthor(author);
         return Response.ok(mangas).build();
     }
 
@@ -57,7 +58,7 @@ public class MangaResource {
     @Path("/isbn/{isbn}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getByISBN(@PathParam("isbn") String isbn) {
-        Optional<Manga> manga = mangaRepository.findByISBN(isbn);
+        Optional<ReturningMangaRequest> manga = mangaService.getMangaByISBN(isbn);
         if (manga.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -68,21 +69,19 @@ public class MangaResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getById(@PathParam("id") Long id) {
-        Optional<Manga> manga = mangaRepository.findById(id);
+        Optional<ReturningMangaRequest> manga = mangaService.getMangaById(id);
         if (manga.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        ReturningMangaRequest response = MangaMapper.toResponse(manga.orElse(null));
-        return Response.ok(response).build();
+        return Response.ok(manga).build();
     }
 
     // POST http
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(CreateMangaRequest request) {
-        Manga manga = MangaMapper.toEntity(request);
-        mangaRepository.save(manga);
-        return Response.status(Response.Status.CREATED).build();
+        ReturningMangaRequest manga = mangaService.createManga(request);
+        return Response.status(Response.Status.CREATED).entity(manga).build();
     }
 
     //PUT https
@@ -90,25 +89,21 @@ public class MangaResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("id") Long id, UpdateMangaRequest request) {
-        Optional<Manga> manga = mangaRepository.findById(id);
-        if (manga.isEmpty()) {
+        Optional<ReturningMangaRequest> mangaResponse = mangaService.updateManga(id, request);
+        if (mangaResponse.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        MangaMapper.toEntity(request, manga.get());
-        mangaRepository.update(manga.get());
-        return Response.ok().build();
+        return Response.ok(mangaResponse.get()).build();
     }
 
     //DELETE http
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
-        Optional<Manga> manga = mangaRepository.findById(id);
-        if (manga.isEmpty()) {
+        boolean deleted = mangaService.deleteManga(id);
+        if (!deleted) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        mangaRepository.delete(manga.get());
         return Response.noContent().build();
-        //Should this be ok or noContent?
     }
 }

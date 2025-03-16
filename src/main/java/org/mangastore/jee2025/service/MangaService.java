@@ -19,5 +19,9 @@ public interface MangaService {
 
     Optional<ReturningMangaRequest> updateManga(Long id, UpdateMangaRequest request);
 
+    List<ReturningMangaRequest> getMangasByTitle(String title);
+
+    List<ReturningMangaRequest> getMangasByAuthor(String author);
+
     boolean deleteManga(Long id);
 }
