@@ -61,11 +61,12 @@ The application will be accessible at http://localhost:8080.
 
 ## API Documentation
 Endpoints
-Method	Endpoint	Description
-GET	/mangas	Get all manga entries.
-GET	/mangas/{id}	Get a manga by ID.
-GET	/mangas/isbn/{isbn}	Get a manga by ISBN.
-GET	/mangas/author/{author}	Get manga by author.
-POST	/mangas	Create a new manga entry.
-PUT	/mangas/{id}	Update an existing manga entry.
-DELETE	/mangas/{id}	Delete a manga entry by ID.
+| Method    | Endpoint | Description |
+| -------- | ------- | ------ |
+| GET  | ```/mangas```  | Get all manga entries.|
+| GET | /mangas/{id}     | Get a manga by ID.|
+| GET    | /mangas/isbn/{isbn}   | Get a manga by ISBN.|
+| GET | /mangas/author/{author} | Get manga by author. |
+| POST | /mangas | Create a new manga entry. |
+| PUT | /mangas/{id} | Update an existing manga entry.|
+| DELETE	| /mangas/{id} |	Delete a manga entry by ID.|
