@@ -8,8 +8,6 @@ import lombok.extern.java.Log;
 import org.mangastore.jee2025.dto.CreateMangaRequest;
 import org.mangastore.jee2025.dto.ReturningMangaRequest;
 import org.mangastore.jee2025.dto.UpdateMangaRequest;
-import org.mangastore.jee2025.entity.Manga;
-import org.mangastore.jee2025.mapper.MangaMapper;
 import org.mangastore.jee2025.service.MangaService;
 import org.mangastore.jee2025.service.MangaServiceImpl;
 

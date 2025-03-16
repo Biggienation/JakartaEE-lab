@@ -60,6 +60,12 @@ public class MangaServiceImpl implements MangaService {
     public ReturningMangaRequest createManga(CreateMangaRequest request) {
         if (mangaRepository.findByISBN(request.getISBN()).isPresent()) {
             throw new ValidationException("A manga with this ISBN already exists.");
+            // Should return a JSON
+        }
+
+        if (mangaRepository.findByTitleAndAuthor(request.getTitle(), request.getAuthor()).isPresent()) {
+            throw new ValidationException("A manga with the same title and author already exists.");
+            // Should return a JSON
         }
 
         Manga manga = MangaMapper.toEntity(request);
@@ -72,6 +78,7 @@ public class MangaServiceImpl implements MangaService {
         Optional<Manga> mangaOptional = mangaRepository.findById(id);
         if (mangaOptional.isEmpty()) {
             throw new ResourceNotFoundException("Manga with ID " + id + " not found.");
+            // Should return a JSON
         }
 
         Manga manga = mangaOptional.get();
@@ -88,6 +95,7 @@ public class MangaServiceImpl implements MangaService {
         Optional<Manga> mangaOptional = mangaRepository.findById(id);
         if (mangaOptional.isEmpty()) {
             throw new ResourceNotFoundException("Manga with ID " + id + " not found.");
+            // Should return a JSON
         }
 
         mangaRepository.delete(mangaOptional.get());

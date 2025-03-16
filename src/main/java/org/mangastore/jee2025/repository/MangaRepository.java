@@ -19,6 +19,7 @@ public interface MangaRepository extends CrudRepository<Manga, Long> {
     Stream<Manga> findAll();
 
     // Find mangas by title (case-insensitive)
+    // Does not work as intended atm
     @Find
     @Query("SELECT m FROM Manga m WHERE LOWER(m.title) = LOWER(:title)")
     List<Manga> findByTitleIgnoreCase(String title);
@@ -31,4 +32,8 @@ public interface MangaRepository extends CrudRepository<Manga, Long> {
     // Find mangas by ISBN
     @Query("SELECT m FROM Manga m WHERE m.ISBN = :ISBN")
     Optional<Manga> findByISBN(String ISBN);
+
+    // FInd mangas by title and author
+    @Query("SELECT m FROM Manga m WHERE m.title = :title AND m.author = :author")
+    Optional<Manga> findByTitleAndAuthor(String title, String author);
 }

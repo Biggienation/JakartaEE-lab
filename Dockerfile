@@ -1,64 +1,86 @@
-# syntax=docker/dockerfile:1
+# By default, build on JDK 21 on UBI 9.
+ARG jdk=23-jre
+ARG dist=ubi9-minimal
 
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
+FROM maven:3-eclipse-temurin-23 AS build
+WORKDIR /opt/JEE
+COPY . /opt/JEE
+RUN mvn package
 
-# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
+FROM eclipse-temurin:${jdk}-${dist}
 
-################################################################################
+# Wildfly and PostgreSQL versions
+ARG WILDFLY_VERSION=35.0.1.Final
+ARG WILDFLY_SHA1=35e61cfe2b14bab1f0644d4967090fe7de8590dd
+ARG POSTGRESQL_DRIVER_VERSION=42.7.5
+ARG POSTGRESQL_JDBC_DRIVER=postgresql-${POSTGRESQL_DRIVER_VERSION}.jar
 
-# Create a stage for resolving and downloading dependencies.
-FROM openjdk:23-jdk as deps
+# Install necessary packages in single layer
+RUN if [ -x "$(command -v microdnf)" ]; then \
+        microdnf update -y && \
+        microdnf install --best --nodocs -y shadow-utils && \
+        microdnf clean all; \
+    elif [ -x "$(command -v apt-get)" ]; then \
+        apt-get update && \
+        apt-get install -y --no-install-recommends shadow && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
 
-WORKDIR /build
+# Set environment variables
+ENV JBOSS_HOME=/opt/jboss/wildfly \
+    LAUNCH_JBOSS_IN_BACKGROUND=true
 
-# Copy the mvnw wrapper with executable permissions.
-COPY --chmod=0755 mvnw mvnw
-COPY .mvn/ .mvn/
+# Create jboss user and directory structure
+RUN groupadd -r jboss -g 1000 && useradd -u 1000 -r -g jboss -m -d /opt/jboss -s /sbin/nologin -c "JBoss user" jboss \
+    && chmod 755 /opt/jboss
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.m2 so that subsequent builds don't have to
-# re-download packages.
-RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2 ./mvnw dependency:go-offline -DskipTests
+# Add the WildFly distribution to /opt, and make wildfly the owner of the extracted tar content
+# Make sure the distribution is available from a well-known place
+RUN cd $HOME \
+    && curl -L -O https://github.com/wildfly/wildfly/releases/download/$WILDFLY_VERSION/wildfly-preview-$WILDFLY_VERSION.tar.gz \
+    && sha1sum wildfly-preview-$WILDFLY_VERSION.tar.gz | grep $WILDFLY_SHA1 \
+    && tar xf wildfly-preview-$WILDFLY_VERSION.tar.gz \
+    && mv $HOME/wildfly-preview-$WILDFLY_VERSION $JBOSS_HOME \
+    && rm wildfly-preview-$WILDFLY_VERSION.tar.gz \
+    && chown -R jboss:0 ${JBOSS_HOME} \
+    && chmod -R g+rw ${JBOSS_HOME}
 
-################################################################################
+# Download PostgreSQL JDBC Driver
+RUN curl -L -o ${JBOSS_HOME}/standalone/deployments/postgresql.jar \
+    https://jdbc.postgresql.org/download/${POSTGRESQL_JDBC_DRIVER} \
+    && chmod 664 ${JBOSS_HOME}/standalone/deployments/postgresql.jar
 
-# Create a stage for building the application based on the stage with downloaded dependencies.
-# This Dockerfile is optimized for Java applications that output an uber jar, which includes
-# all the dependencies needed to run your app inside a JVM. If your app doesn't output an uber
-# jar and instead relies on an application server like Apache Tomcat, you'll need to update this
-# stage with the correct filename of your package and update the base image of the "final" stage
-# use the relevant app server, e.g., using tomcat (https://hub.docker.com/_/tomcat/) as a base image.
-FROM deps as package
+# Create the .dodeploy marker file
+RUN touch ${JBOSS_HOME}/standalone/deployments/postgresql.jar.dodeploy && \
+    chmod 664 ${JBOSS_HOME}/standalone/deployments/postgresql.jar
 
-WORKDIR /build
+# Copy CLI scripts for datasource and driver configuration
+COPY --chown=jboss:0 docker/configure-datasource.cli /tmp/
+COPY --chown=jboss:0 docker/entrypoint.sh /opt/jboss/
 
-COPY ./src src/
-RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2 \
-    ./mvnw package -DskipTests && \
-    mv target/$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceStdout)-$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout).jar target/app.jar
+# Make the entrypoint script executable
+RUN chmod +x /opt/jboss/entrypoint.sh
 
+# Copy your application WAR file
+COPY --chown=jboss:0 --from=build /opt/JEE/target/*.war ${JBOSS_HOME}/standalone/deployments/
 
-################################################################################
+# Set safe default environment variables
+ENV DB_HOST=db-host-placeholder \
+    DB_PORT=5432 \
+    DB_NAME=db-name-placeholder \
+    DB_USER=db-user-placeholder \
+    DB_PASSWORD=change-me \
+    DS_NAME=postgresql.jar \
+    DS_JNDI=java:/PostgresDS
 
-# Create a new stage for running the application that contains the minimal
-# runtime dependencies for the application. This often uses a different base
-# image from the install or build stage where the necessary files are copied
-# from the install stage.
-#
-# The example below uses eclipse-turmin's JRE image as the foundation for running the app.
-# By specifying the "23-jre-jammy" tag, it will also use whatever happens to be the
-# most recent version of that tag when you build your Dockerfile.
-# If reproducibility is important, consider using a specific digest SHA, like
-# eclipse-temurin@sha256:99cede493dfd88720b610eb8077c8688d3cca50003d76d1d539b0efc8cca72b4.
-FROM openjdk:23-jdk AS final
+# Switch to non-root user
+USER jboss
 
-# Copy the executable from the "package" stage.
-COPY --from=package build/target/app.jar app.jar
-
+# Expose the ports
 EXPOSE 8080
 
-ENTRYPOINT [ "java", "-jar", "app.jar" ]
+# Add health check
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8080/health || exit 1
+
+# Use custom entrypoint script
+ENTRYPOINT ["/opt/jboss/entrypoint.sh"]
