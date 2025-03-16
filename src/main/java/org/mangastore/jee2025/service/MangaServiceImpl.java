@@ -32,12 +32,14 @@ public class MangaServiceImpl implements MangaService {
     public Optional<ReturningMangaRequest> getMangaById(Long id) {
         return mangaRepository.findById(id)
                 .map(MangaMapper::toResponse);
+        //Could throw exception
     }
 
     @Override
     public Optional<ReturningMangaRequest> getMangaByISBN(String ISBN) {
         return mangaRepository.findByISBN(ISBN)
                 .map(MangaMapper::toResponse);
+        //Could throw exception
     }
 
     @Override
