@@ -1,0 +1,1 @@
+SELECT m FROM Manga m WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', 'uz', '%'))
